@@ -65,21 +65,24 @@ export default function Home() {
       alert("Please upload a file or load sample data first.");
       return;
     }
+    let data: DataItem[] = [];
     try {
-      const data = JSON.parse(fileData) as DataItem[];
-      setParsedData(data);
+      data = JSON.parse(fileData);
     } catch (error) {
       try {
         const lines = fileData.split("\n").filter(line => line.trim() !== "");
-        const data = lines.map((line) => {
+        data = lines.map((line) => {
           const [name, value] = line.split(",");
           return { name, value: parseFloat(value) };
         });
-        setParsedData(data);
       } catch (csvError) {
         alert("Error parsing data. Please ensure it is valid JSON or CSV format (name,value).");
+        return;
       }
     }
+
+    const validData = data.filter(item => typeof item.name === 'string' && !isNaN(item.value) && item.value !== null);
+    setParsedData(validData);
   };
 
   const loadSampleData = () => {
