@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useRef, useState, useCallback } from "react";
@@ -17,9 +18,8 @@ import {
   Line,
   ResponsiveContainer,
   Label as RechartsLabel,
-  LabelList,
 } from "recharts";
-import { Download, Copy, TrendingUp, BarChart2, PieChart as PieChartIcon, FileUp, TestTube2 } from "lucide-react";
+import { Download, Copy, TrendingUp, BarChart2, PieChart as PieChartIcon, FileUp, TestTube2, Palette } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { Toaster } from "@/components/ui/toaster";
+import { Switch } from "@/components/ui/switch";
 
 interface DataItem {
   name: string;
@@ -57,6 +58,7 @@ export default function Home() {
   const [fileData, setFileData] = useState<string>("");
   const [parsedData, setParsedData] = useState<DataItem[]>([]);
   const [chartType, setChartType] = useState<"pie" | "bar" | "line">("bar");
+  const [useMultiColor, setUseMultiColor] = useState<boolean>(false);
   const chartRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -125,7 +127,7 @@ export default function Home() {
       return;
     }
     const isDark = document.documentElement.classList.contains('dark');
-    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? '#000000' : '#ffffff' })
+    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? 'hsl(var(--background))' : 'hsl(var(--background))' })
       .then((dataUrl) => {
         const link = document.createElement("a");
         link.download = `${chartType}-chart.png`;
@@ -147,7 +149,7 @@ export default function Home() {
       return;
     }
     const isDark = document.documentElement.classList.contains('dark');
-    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? '#000000' : '#ffffff' })
+    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? 'hsl(var(--background))' : 'hsl(var(--background))' })
       .then(async (dataUrl) => {
         try {
           const blob = await (await fetch(dataUrl)).blob();
@@ -183,8 +185,9 @@ export default function Home() {
 
   const applyColorTheme = (color: keyof typeof COLOR_THEMES) => {
     const hsl = COLOR_THEMES[color];
-    document.documentElement.style.setProperty('--primary', hsl);
-    document.documentElement.style.setProperty('--ring', hsl);
+    const root = document.documentElement;
+    root.style.setProperty('--primary', hsl);
+    root.style.setProperty('--ring', hsl);
   };
 
   const renderChart = () => {
@@ -256,7 +259,9 @@ export default function Home() {
                                 <Tooltip cursor={{fill: 'hsla(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))'}}/>
                                 <Legend />
                                 <Bar dataKey="value" fill="url(#barGradient)">
-                                    <LabelList dataKey="value" position="top" />
+                                     {useMultiColor && parsedData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
                                 </Bar>
                             </BarChart>
                         ) : (
@@ -325,7 +330,7 @@ export default function Home() {
                         <CardTitle>2. Customize Your Chart</CardTitle>
                         <CardDescription>Select chart type and theme.</CardDescription>
                     </CardHeader>
-                    <CardContent className="grid gap-6">
+                    <CardContent className="grid sm:grid-cols-2 gap-6">
                         <div className="grid gap-2">
                             <Label>Chart Type</Label>
                             <Select value={chartType} onValueChange={(value) => setChartType(value as "pie" | "bar" | "line")}>
@@ -354,6 +359,15 @@ export default function Home() {
                                 ))}
                             </div>
                         </div>
+                        {chartType === 'bar' && (
+                            <div className="grid gap-2">
+                                <Label>Chart Colors</Label>
+                                <div className="flex items-center space-x-2">
+                                    <Switch id="multicolor-switch" checked={useMultiColor} onCheckedChange={setUseMultiColor} />
+                                    <Label htmlFor="multicolor-switch">Use a different color for each bar</Label>
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
