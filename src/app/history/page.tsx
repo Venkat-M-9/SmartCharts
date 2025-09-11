@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { formatDistanceToNow } from "date-fns";
 import { toPng } from "html-to-image";
 import { BarChart2, LineChart, PieChart as PieChartIcon, Trash2, Download, Copy } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -165,9 +164,6 @@ export default function HistoryPage() {
                                             <ChartIcon className="h-5 w-5" />
                                             {chart.title}
                                         </CardTitle>
-                                        <CardDescription>
-                                            Saved {formatDistanceToNow(new Date(chart.savedAt), { addSuffix: true })}
-                                        </CardDescription>
                                     </div>
                                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteChart(chart.id)}>
                                         <Trash2 className="h-4 w-4" />
