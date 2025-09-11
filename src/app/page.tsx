@@ -45,12 +45,11 @@ const COLOR_THEMES = {
 };
 
 const sampleData = [
-  { name: "Laptops", value: 4000 },
-  { name: "Monitors", value: 3000 },
-  { name: "Keyboards", value: 2000 },
-  { name: "Mice", value: 2780 },
-  { name: "Webcams", value: 1890 },
-  { name: "Printers", value: 2390 },
+    { name: "Apple", value: 5500 },
+    { name: "Samsung", value: 4200 },
+    { name: "Google", value: 2800 },
+    { name: "OnePlus", value: 1900 },
+    { name: "Xiaomi", value: 1500 },
 ];
 
 export default function Home() {
@@ -207,7 +206,7 @@ export default function Home() {
       
       const newChart = {
         id: Date.now(),
-        title: "Product Sales Distribution",
+        title: "Mobile Sales Data",
         data: parsedData,
         chartType,
         useMultiColor: chartType === 'pie' ? true : useMultiColor,
@@ -266,7 +265,7 @@ export default function Home() {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div className="flex items-center gap-2">
                     <ChartIcon className="h-6 w-6" />
-                    <CardTitle>Product Sales Distribution</CardTitle>
+                    <CardTitle>Mobile Sales Data</CardTitle>
                 </div>
                 <div className="flex gap-2">
                      <Button variant="outline" size="sm" onClick={handleSave} disabled={!parsedData.length}>
