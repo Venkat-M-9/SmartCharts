@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, useCallback } from "react";
+import { toPng } from "html-to-image";
 import {
   BarChart,
   Bar,
@@ -16,6 +17,7 @@ import {
   Line,
   ResponsiveContainer,
 } from "recharts";
+import { Download, Copy } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -27,6 +29,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 interface DataItem {
   name: string;
@@ -48,6 +52,8 @@ export default function Home() {
   const [fileData, setFileData] = useState<string>("");
   const [parsedData, setParsedData] = useState<DataItem[]>([]);
   const [chartType, setChartType] = useState<"pie" | "bar" | "line">("bar");
+  const chartRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -81,7 +87,7 @@ export default function Home() {
       }
     }
 
-    const validData = data.filter(item => typeof item.name === 'string' && !isNaN(item.value) && item.value !== null);
+    const validData = data.filter(item => typeof item.name === 'string' && item.name.trim() !== '' && typeof item.value === 'number' && !isNaN(item.value) && item.value !== null);
     setParsedData(validData);
   };
 
@@ -89,6 +95,66 @@ export default function Home() {
     setFileData(JSON.stringify(sampleData, null, 2));
     setParsedData(sampleData);
   };
+
+  const handleDownload = useCallback(() => {
+    if (chartRef.current === null) {
+      return;
+    }
+
+    toPng(chartRef.current, { cacheBust: true })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = `${chartType}-chart.png`;
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast({
+          title: "Error",
+          description: "Could not download chart.",
+          variant: "destructive",
+        });
+      });
+  }, [chartRef, chartType, toast]);
+
+  const handleCopy = useCallback(() => {
+    if (chartRef.current === null) {
+      return;
+    }
+
+    toPng(chartRef.current, { cacheBust: true })
+      .then(async (dataUrl) => {
+        try {
+          const blob = await (await fetch(dataUrl)).blob();
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              [blob.type]: blob,
+            }),
+          ]);
+          toast({
+            title: "Success",
+            description: "Chart copied to clipboard.",
+          });
+        } catch (err) {
+            console.error(err)
+            toast({
+                title: "Error",
+                description: "Could not copy chart to clipboard.",
+                variant: "destructive",
+            });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        toast({
+          title: "Error",
+          description: "Could not copy chart.",
+          variant: "destructive",
+        });
+      });
+  }, [chartRef, toast]);
+
 
   const renderChart = () => {
     if (!parsedData.length) {
@@ -100,7 +166,7 @@ export default function Home() {
         return (
           <ResponsiveContainer width="100%" height={400}>
             <PieChart>
-              <Pie dataKey="value" nameKey="name" data={parsedData} cx="50%" cy="50%" outerRadius={150} fill="#8884d8" label>
+              <Pie dataKey="value" nameKey="name" data={parsedData} cx="50%" cy="50%" outerRadius={150} fill="#8884d8" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}>
                 {parsedData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
@@ -191,11 +257,26 @@ export default function Home() {
           </div>
 
           <div className="mt-4 border-t pt-4">
-            <h3 className="text-lg font-semibold mb-2">Chart Preview</h3>
-            {renderChart()}
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-semibold">Chart Preview</h3>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleDownload} disabled={!parsedData.length}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleCopy} disabled={!parsedData.length}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy
+                </Button>
+              </div>
+            </div>
+            <div ref={chartRef}>
+                {renderChart()}
+            </div>
           </div>
         </CardContent>
       </Card>
+      <Toaster />
     </div>
   );
 }
