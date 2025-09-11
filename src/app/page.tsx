@@ -41,6 +41,13 @@ interface DataItem {
 }
 
 const COLORS = ["#16a085", "#8e44ad", "#f39c12", "#2980b9", "#c0392b"];
+const COLOR_THEMES = {
+    '#16a085': '166 71% 36%',
+    '#8e44ad': '271 47% 41%',
+    '#f39c12': '36 91% 51%',
+    '#2980b9': '205 65% 44%',
+    '#c0392b': '5 61% 48%'
+};
 
 const sampleData = [
   { name: "Laptops", value: 4000 },
@@ -178,6 +185,11 @@ export default function Home() {
   }, [chartRef, toast]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const applyColorTheme = (color: keyof typeof COLOR_THEMES) => {
+    const hsl = COLOR_THEMES[color];
+    document.documentElement.style.setProperty('--primary', hsl);
+  };
 
   const renderChart = () => {
     if (!parsedData.length) {
@@ -334,11 +346,16 @@ export default function Home() {
                          <div className="grid gap-2">
                             <Label>Color Theme</Label>
                              <div className="flex gap-2">
-                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#16a085] hover:bg-[#16a085]/90"></Button>
-                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#8e44ad] hover:bg-[#8e44ad]/90"></Button>
-                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#f39c12] hover:bg-[#f39c12]/90"></Button>
-                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#2980b9] hover:bg-[#2980b9]/90"></Button>
-                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#c0392b] hover:bg-[#c0392b]/90"></Button>
+                                {Object.keys(COLOR_THEMES).map((color) => (
+                                    <Button
+                                        key={color}
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        style={{ backgroundColor: color }}
+                                        onClick={() => applyColorTheme(color as keyof typeof COLOR_THEMES)}
+                                    />
+                                ))}
                             </div>
                         </div>
                     </CardContent>
