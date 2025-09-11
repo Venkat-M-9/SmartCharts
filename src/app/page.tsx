@@ -189,6 +189,7 @@ export default function Home() {
   const applyColorTheme = (color: keyof typeof COLOR_THEMES) => {
     const hsl = COLOR_THEMES[color];
     document.documentElement.style.setProperty('--primary', hsl);
+    document.documentElement.style.setProperty('--ring', hsl);
   };
 
   const renderChart = () => {
@@ -243,7 +244,7 @@ export default function Home() {
                                 <Legend />
                             </PieChart>
                         ) : chartType === 'bar' ? (
-                            <BarChart data={parsedData}>
+                            <BarChart data={parsedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                                 <defs>
                                     <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
@@ -251,11 +252,11 @@ export default function Home() {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="name" tick={{ fontSize: 12 }}>
-                                    <RechartsLabel value="Products" position="insideBottom" offset={-5} />
+                                <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0}>
+                                    <RechartsLabel value="Products" position="insideBottom" offset={-15} />
                                 </XAxis>
                                 <YAxis>
-                                    <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" />
+                                    <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
                                 </YAxis>
                                 <Tooltip cursor={{fill: 'hsla(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))'}}/>
                                 <Legend />
@@ -264,23 +265,23 @@ export default function Home() {
                                 </Bar>
                             </BarChart>
                         ) : (
-                            <LineChart data={parsedData}>
+                            <LineChart data={parsedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                                  <defs>
                                     <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.8}/>
-                                        <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" tick={{ fontSize: 12 }}>
-                                     <RechartsLabel value="Products" position="insideBottom" offset={-5} />
+                                <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0}>
+                                     <RechartsLabel value="Products" position="insideBottom" offset={-15} />
                                 </XAxis>
                                 <YAxis>
-                                    <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" />
+                                    <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
                                 </YAxis>
                                 <Tooltip contentStyle={{backgroundColor: 'hsl(var(--background))'}} />
                                 <Legend />
-                                <Line type="monotone" dataKey="value" stroke="hsl(var(--accent))" fill="url(#lineGradient)" />
+                                <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#lineGradient)" />
                             </LineChart>
                         )}
                     </ResponsiveContainer>
