@@ -20,12 +20,7 @@ import {
   LabelList,
 } from "recharts";
 import { Download, Copy, TrendingUp, BarChart2, PieChart as PieChartIcon, FileUp, TestTube2 } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -129,8 +124,8 @@ export default function Home() {
     if (chartRef.current === null) {
       return;
     }
-
-    toPng(chartRef.current, { cacheBust: true, backgroundColor: 'white' })
+    const isDark = document.documentElement.classList.contains('dark');
+    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? '#0c102a' : '#ffffff' })
       .then((dataUrl) => {
         const link = document.createElement("a");
         link.download = `${chartType}-chart.png`;
@@ -151,8 +146,8 @@ export default function Home() {
     if (chartRef.current === null) {
       return;
     }
-
-    toPng(chartRef.current, { cacheBust: true, backgroundColor: 'white' })
+    const isDark = document.documentElement.classList.contains('dark');
+    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? '#0c102a' : '#ffffff' })
       .then(async (dataUrl) => {
         try {
           const blob = await (await fetch(dataUrl)).blob();
@@ -195,7 +190,7 @@ export default function Home() {
   const renderChart = () => {
     if (!parsedData.length) {
       return (
-        <div className="flex flex-col items-center justify-center h-[450px] text-muted-foreground bg-muted/20 rounded-lg border-2 border-dashed">
+        <div className="flex flex-col items-center justify-center h-[450px] text-muted-foreground bg-card rounded-lg border-2 border-dashed">
             <p className="mb-4">Your chart will appear here.</p>
             <Button onClick={() => fileInputRef.current?.click()}>
                 <FileUp className="mr-2 h-4 w-4" />
@@ -213,8 +208,8 @@ export default function Home() {
     const ChartIcon = chartComponents[chartType];
 
     return (
-        <Card className="shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="shadow-none border-0 bg-transparent">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div className="flex items-center gap-2">
                     <ChartIcon className="h-6 w-6" />
                     <CardTitle>Product Sales Distribution</CardTitle>
@@ -231,16 +226,16 @@ export default function Home() {
                 </div>
             </CardHeader>
             <CardContent>
-                <div ref={chartRef} className="bg-background p-4 rounded-lg">
+                <div ref={chartRef} className="bg-card p-4 rounded-lg border">
                     <ResponsiveContainer width="100%" height={400}>
                         {chartType === 'pie' ? (
                             <PieChart>
-                                <Pie dataKey="value" nameKey="name" data={parsedData} cx="50%" cy="50%" outerRadius={150} fill="#8884d8" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}>
+                                <Pie dataKey="value" nameKey="name" data={parsedData} cx="50%" cy="50%" outerRadius={150} fill="hsl(var(--primary))" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}>
                                     {parsedData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
-                                <Tooltip />
+                                <Tooltip cursor={{fill: 'hsla(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))'}}/>
                                 <Legend />
                             </PieChart>
                         ) : chartType === 'bar' ? (
@@ -267,8 +262,8 @@ export default function Home() {
                         ) : (
                             <LineChart data={parsedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                                  <defs>
-                                    <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                                    <linearGradient id="lineGradientArea" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
                                         <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
@@ -281,7 +276,7 @@ export default function Home() {
                                 </YAxis>
                                 <Tooltip contentStyle={{backgroundColor: 'hsl(var(--background))'}} />
                                 <Legend />
-                                <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#lineGradient)" />
+                                <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#lineGradientArea)" dot={{ r: 4, fill: 'hsl(var(--primary))' }} activeDot={{ r: 6 }} />
                             </LineChart>
                         )}
                     </ResponsiveContainer>
@@ -294,22 +289,22 @@ export default function Home() {
   return (
     <>
       <main className="flex-1 p-4 md:p-8">
-        <div className="max-w-7xl mx-auto grid gap-8">
+        <div className="max-w-7xl mx-auto grid gap-12">
             <div className="text-center">
                 <h1 className="text-4xl md:text-5xl font-bold tracking-tight">SmartCharts</h1>
-                <p className="mt-2 text-lg md:text-xl text-muted-foreground">Upload Data → Generate Charts Instantly</p>
+                <p className="mt-4 text-lg md:text-xl text-muted-foreground">Upload Data → Generate Charts Instantly</p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
-                <Card className="md:col-span-1">
+            <div className="grid md:grid-cols-3 gap-8">
+                <Card className="md:col-span-1 shadow-none border-0 bg-card">
                     <CardHeader>
                         <CardTitle>1. Load Your Data</CardTitle>
-                        <CardDescription>Upload a file or use our sample data to get started.</CardDescription>
+                        <CardDescription>Upload a CSV/JSON file or use sample data.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
                         <div className="grid gap-2">
                           <Label htmlFor="file-upload" className="sr-only">Upload Data</Label>
-                          <Input id="file-upload" type="file" accept=".json, .csv, .xls, .xlsx" onChange={handleFileChange} className="hidden" ref={fileInputRef}/>
+                          <Input id="file-upload" type="file" accept=".json, .csv" onChange={handleFileChange} className="hidden" ref={fileInputRef}/>
                           <Button onClick={() => fileInputRef.current?.click()}>
                             <FileUp className="mr-2 h-4 w-4" />
                             Upload File
@@ -325,12 +320,12 @@ export default function Home() {
                         </Button>
                     </CardContent>
                 </Card>
-                <Card className="md:col-span-2">
+                <Card className="md:col-span-2 shadow-none border-0 bg-card">
                     <CardHeader>
                         <CardTitle>2. Customize Your Chart</CardTitle>
-                        <CardDescription>Select chart type and other options.</CardDescription>
+                        <CardDescription>Select chart type and theme.</CardDescription>
                     </CardHeader>
-                    <CardContent className="grid gap-4">
+                    <CardContent className="grid gap-6">
                         <div className="grid gap-2">
                             <Label>Chart Type</Label>
                             <Select value={chartType} onValueChange={(value) => setChartType(value as "pie" | "bar" | "line")}>
@@ -352,7 +347,7 @@ export default function Home() {
                                         key={color}
                                         variant="outline"
                                         size="icon"
-                                        className="h-8 w-8"
+                                        className="h-8 w-8 rounded-full"
                                         style={{ backgroundColor: color }}
                                         onClick={() => applyColorTheme(color as keyof typeof COLOR_THEMES)}
                                     />
@@ -364,19 +359,19 @@ export default function Home() {
             </div>
           
           <div>
-            <h3 className="text-xl font-semibold mb-4">3. Your Chart</h3>
+            <h3 className="text-2xl font-semibold mb-4">3. Your Chart</h3>
             {renderChart()}
           </div>
           
           {parsedData.length > 0 && (
-             <Card>
+             <Card className="shadow-none border-0 bg-card">
                 <CardHeader>
                     <CardTitle>Data Preview</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="max-h-60 overflow-y-auto">
+                    <div className="max-h-60 overflow-y-auto border rounded-lg">
                         <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-muted-foreground uppercase">
+                            <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
                                 <tr>
                                     <th scope="col" className="px-6 py-3">Product</th>
                                     <th scope="col" className="px-6 py-3">Units Sold</th>
