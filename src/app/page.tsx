@@ -10,7 +10,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   PieChart,
   Pie,
   Cell,
@@ -239,7 +238,6 @@ export default function Home() {
                                     ))}
                                 </Pie>
                                 <Tooltip cursor={{fill: 'hsla(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))'}}/>
-                                <Legend />
                             </PieChart>
                         ) : chartType === 'bar' ? (
                             <BarChart data={parsedData} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
@@ -257,7 +255,6 @@ export default function Home() {
                                     <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
                                 </YAxis>
                                 <Tooltip cursor={{fill: 'hsla(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))'}}/>
-                                <Legend />
                                 <Bar dataKey="value" fill="url(#barGradient)">
                                      {useMultiColor && parsedData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -280,7 +277,6 @@ export default function Home() {
                                     <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
                                 </YAxis>
                                 <Tooltip contentStyle={{backgroundColor: 'hsl(var(--background))'}} />
-                                <Legend />
                                 <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2} fillOpacity={1} fill="url(#lineGradientArea)" dot={{ r: 4, fill: 'hsl(var(--primary))' }} activeDot={{ r: 6 }} />
                             </LineChart>
                         )}
