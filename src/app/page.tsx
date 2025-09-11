@@ -18,7 +18,7 @@ import {
   ResponsiveContainer,
   Label as RechartsLabel,
 } from "recharts";
-import { Download, Copy, TrendingUp, BarChart2, PieChart as PieChartIcon, FileUp, TestTube2, Palette } from "lucide-react";
+import { Download, Copy, TrendingUp, BarChart2, PieChart as PieChartIcon, FileUp, TestTube2, Palette, Save } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -180,6 +180,47 @@ export default function Home() {
       });
   }, [chartRef, toast]);
   
+  const handleSave = useCallback(() => {
+    if (parsedData.length === 0) {
+      toast({
+        title: "Cannot Save",
+        description: "There is no chart to save.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const savedCharts = JSON.parse(localStorage.getItem("savedCharts") || "[]");
+      const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+      
+      const newChart = {
+        id: Date.now(),
+        title: "Product Sales Distribution",
+        data: parsedData,
+        chartType,
+        useMultiColor,
+        primaryColor,
+        savedAt: new Date().toISOString(),
+      };
+
+      savedCharts.unshift(newChart);
+      localStorage.setItem("savedCharts", JSON.stringify(savedCharts));
+
+      toast({
+        title: "Chart Saved",
+        description: "Your chart has been saved to your history.",
+      });
+    } catch (error) {
+      console.error("Failed to save chart:", error);
+      toast({
+        title: "Error",
+        description: "Could not save chart to history.",
+        variant: "destructive",
+      });
+    }
+  }, [parsedData, chartType, useMultiColor, toast]);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const applyColorTheme = (color: keyof typeof COLOR_THEMES) => {
@@ -217,6 +258,10 @@ export default function Home() {
                     <CardTitle>Product Sales Distribution</CardTitle>
                 </div>
                 <div className="flex gap-2">
+                     <Button variant="outline" size="sm" onClick={handleSave} disabled={!parsedData.length}>
+                        <Save className="mr-2 h-4 w-4" />
+                        Save
+                    </Button>
                     <Button variant="outline" size="sm" onClick={handleDownload} disabled={!parsedData.length}>
                         <Download className="mr-2 h-4 w-4" />
                         Download
@@ -249,7 +294,6 @@ export default function Home() {
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                 <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-30} textAnchor="end">
-                                    <RechartsLabel value="Products" position="insideBottom" offset={-35} />
                                 </XAxis>
                                 <YAxis>
                                     <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
@@ -407,3 +451,5 @@ export default function Home() {
     </>
   );
 }
+
+    
