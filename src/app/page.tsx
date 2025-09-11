@@ -19,7 +19,7 @@ import {
   Label as RechartsLabel,
   LabelList,
 } from "recharts";
-import { Download, Copy, TrendingUp, BarChart2, PieChart as PieChartIcon } from "lucide-react";
+import { Download, Copy, TrendingUp, BarChart2, PieChart as PieChartIcon, FileUp, TestTube2 } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -32,8 +32,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster";
 import { Separator } from "@/components/ui/separator";
+import { Toaster } from "@/components/ui/toaster";
 
 interface DataItem {
   name: string;
@@ -65,12 +65,13 @@ export default function Home() {
     const reader = new FileReader();
     reader.onload = (event) => {
       setFileData(event.target?.result as string);
+      parseData(event.target?.result as string);
     };
     reader.readAsText(file);
   };
 
-  const parseData = () => {
-    if (!fileData) {
+  const parseData = (dataToParse = fileData) => {
+    if (!dataToParse) {
       toast({
         title: "No Data",
         description: "Please upload a file or load sample data first.",
@@ -80,10 +81,10 @@ export default function Home() {
     }
     let data: DataItem[] = [];
     try {
-      data = JSON.parse(fileData);
+      data = JSON.parse(dataToParse);
     } catch (error) {
       try {
-        const lines = fileData.split("\n").filter(line => line.trim() !== "");
+        const lines = dataToParse.split("\n").filter(line => line.trim() !== "");
         data = lines.map((line) => {
           const [name, value] = line.split(",");
           return { name, value: parseFloat(value) };
@@ -175,10 +176,20 @@ export default function Home() {
         });
       });
   }, [chartRef, toast]);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const renderChart = () => {
     if (!parsedData.length) {
-      return <div className="flex items-center justify-center h-[400px] text-muted-foreground">No data to display. Please upload and parse your data.</div>;
+      return (
+        <div className="flex flex-col items-center justify-center h-[450px] text-muted-foreground bg-muted/20 rounded-lg border-2 border-dashed">
+            <p className="mb-4">Your chart will appear here.</p>
+            <Button onClick={() => fileInputRef.current?.click()}>
+                <FileUp className="mr-2 h-4 w-4" />
+                Upload File
+            </Button>
+        </div>
+      );
     }
 
     const chartComponents = {
@@ -189,24 +200,28 @@ export default function Home() {
     const ChartIcon = chartComponents[chartType];
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+        <Card className="shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
                     <ChartIcon className="h-6 w-6" />
-                    Product Sales Distribution
-                </CardTitle>
+                    <CardTitle>Product Sales Distribution</CardTitle>
+                </div>
+                <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handleDownload} disabled={!parsedData.length}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleCopy} disabled={!parsedData.length}>
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent>
                 <div ref={chartRef} className="bg-background p-4 rounded-lg">
                     <ResponsiveContainer width="100%" height={400}>
                         {chartType === 'pie' ? (
                             <PieChart>
-                                <defs>
-                                    <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                                        <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
                                 <Pie dataKey="value" nameKey="name" data={parsedData} cx="50%" cy="50%" outerRadius={150} fill="#8884d8" labelLine={false} label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}>
                                     {parsedData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -224,13 +239,13 @@ export default function Home() {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="name">
+                                <XAxis dataKey="name" tick={{ fontSize: 12 }}>
                                     <RechartsLabel value="Products" position="insideBottom" offset={-5} />
                                 </XAxis>
                                 <YAxis>
                                     <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" />
                                 </YAxis>
-                                <Tooltip cursor={{fill: 'hsla(var(--muted))'}} />
+                                <Tooltip cursor={{fill: 'hsla(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))'}}/>
                                 <Legend />
                                 <Bar dataKey="value" fill="url(#barGradient)">
                                     <LabelList dataKey="value" position="top" />
@@ -245,13 +260,13 @@ export default function Home() {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name">
+                                <XAxis dataKey="name" tick={{ fontSize: 12 }}>
                                      <RechartsLabel value="Products" position="insideBottom" offset={-5} />
                                 </XAxis>
                                 <YAxis>
                                     <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" />
                                 </YAxis>
-                                <Tooltip />
+                                <Tooltip contentStyle={{backgroundColor: 'hsl(var(--background))'}} />
                                 <Legend />
                                 <Line type="monotone" dataKey="value" stroke="hsl(var(--accent))" fill="url(#lineGradient)" />
                             </LineChart>
@@ -264,87 +279,108 @@ export default function Home() {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
-      <Card className="max-w-4xl mx-auto shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold tracking-tight">Chartastic</CardTitle>
-          <CardDescription className="text-lg text-muted-foreground">Visualize your data with intuitive and beautiful charts.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-6">
-            <div className="grid md:grid-cols-2 gap-6">
-                <Card>
+    <>
+      <main className="flex-1 p-4 md:p-8">
+        <div className="max-w-7xl mx-auto grid gap-8">
+            <div className="text-center">
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight">SmartCharts</h1>
+                <p className="mt-2 text-lg md:text-xl text-muted-foreground">Upload Data → Generate Charts Instantly</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+                <Card className="md:col-span-1">
                     <CardHeader>
                         <CardTitle>1. Load Your Data</CardTitle>
+                        <CardDescription>Upload a file or use our sample data to get started.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
                         <div className="grid gap-2">
-                          <Label htmlFor="file">Upload Data (JSON or CSV):</Label>
-                          <Input id="file" type="file" accept=".json, .csv" onChange={handleFileChange} />
+                          <Label htmlFor="file-upload" className="sr-only">Upload Data</Label>
+                          <Input id="file-upload" type="file" accept=".json, .csv, .xls, .xlsx" onChange={handleFileChange} className="hidden" ref={fileInputRef}/>
+                          <Button onClick={() => fileInputRef.current?.click()}>
+                            <FileUp className="mr-2 h-4 w-4" />
+                            Upload File
+                          </Button>
                         </div>
                         <div className="relative">
                             <Separator className="my-2" />
                             <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-card px-2 text-sm text-muted-foreground">OR</span>
                         </div>
-                        <Button onClick={loadSampleData} variant="secondary">Load Sample Data</Button>
-                        <Accordion type="single" collapsible className="w-full">
-                            <AccordionItem value="item-1">
-                            <AccordionTrigger>View Sample Data Structure</AccordionTrigger>
-                            <AccordionContent>
-                                <p className="text-sm text-muted-foreground mb-2">
-                                Your data should be an array of objects with "name" and "value" keys (JSON) or a CSV with name,value columns.
-                                </p>
-                                <pre className="bg-muted p-2 rounded-md text-sm overflow-x-auto">
-                                <code>{JSON.stringify(sampleData, null, 2)}</code>
-                                </pre>
-                            </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
+                        <Button onClick={loadSampleData} variant="secondary">
+                            <TestTube2 className="mr-2 h-4 w-4"/>
+                            Try Sample Data
+                        </Button>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="md:col-span-2">
                     <CardHeader>
-                        <CardTitle>2. Customize & Visualize</CardTitle>
+                        <CardTitle>2. Customize Your Chart</CardTitle>
+                        <CardDescription>Select chart type and other options.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
                         <div className="grid gap-2">
-                            <Label>Select Chart Type:</Label>
+                            <Label>Chart Type</Label>
                             <Select value={chartType} onValueChange={(value) => setChartType(value as "pie" | "bar" | "line")}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a chart type" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="pie">Pie Chart</SelectItem>
                                 <SelectItem value="bar">Bar Chart</SelectItem>
                                 <SelectItem value="line">Line Chart</SelectItem>
+                                <SelectItem value="pie">Pie Chart</SelectItem>
                             </SelectContent>
                             </Select>
                         </div>
-                        <Button onClick={parseData} className="w-full">Parse and Visualize Data</Button>
+                         <div className="grid gap-2">
+                            <Label>Color Theme</Label>
+                             <div className="flex gap-2">
+                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#16a085] hover:bg-[#16a085]/90"></Button>
+                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#8e44ad] hover:bg-[#8e44ad]/90"></Button>
+                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#f39c12] hover:bg-[#f39c12]/90"></Button>
+                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#2980b9] hover:bg-[#2980b9]/90"></Button>
+                                <Button variant="outline" size="icon" className="h-8 w-8 bg-[#c0392b] hover:bg-[#c0392b]/90"></Button>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
-
-          <Separator />
           
           <div>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">3. Export Your Chart</h3>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleDownload} disabled={!parsedData.length}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleCopy} disabled={!parsedData.length}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy
-                </Button>
-              </div>
-            </div>
+            <h3 className="text-xl font-semibold mb-4">3. Your Chart</h3>
             {renderChart()}
           </div>
-        </CardContent>
-      </Card>
+          
+          {parsedData.length > 0 && (
+             <Card>
+                <CardHeader>
+                    <CardTitle>Data Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="max-h-60 overflow-y-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="text-xs text-muted-foreground uppercase">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3">Product</th>
+                                    <th scope="col" className="px-6 py-3">Units Sold</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {parsedData.map((item, index) => (
+                                    <tr key={index} className="border-b">
+                                        <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap">{item.name}</th>
+                                        <td className="px-6 py-4">{item.value}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+             </Card>
+          )}
+
+        </div>
+      </main>
       <Toaster />
-    </div>
+    </>
   );
 }
