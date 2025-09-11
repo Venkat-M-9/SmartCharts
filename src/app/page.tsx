@@ -199,7 +199,7 @@ export default function Home() {
         title: "Product Sales Distribution",
         data: parsedData,
         chartType,
-        useMultiColor,
+        useMultiColor: chartType === 'pie' ? true : useMultiColor,
         primaryColor,
         savedAt: new Date().toISOString(),
       };
@@ -399,12 +399,12 @@ export default function Home() {
                                 ))}
                             </div>
                         </div>
-                        {chartType === 'bar' && (
+                        {(chartType === 'bar' || chartType === 'pie') && (
                             <div className="grid gap-2">
                                 <Label>Chart Colors</Label>
                                 <div className="flex items-center space-x-2">
                                     <Switch id="multicolor-switch" checked={useMultiColor} onCheckedChange={setUseMultiColor} />
-                                    <Label htmlFor="multicolor-switch">Use a different color for each bar</Label>
+                                    <Label htmlFor="multicolor-switch">Use a different color for each {chartType === 'bar' ? 'bar' : 'slice'}</Label>
                                 </div>
                             </div>
                         )}

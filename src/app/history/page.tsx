@@ -181,8 +181,8 @@ export default function HistoryPage() {
                                         {chart.chartType === 'pie' ? (
                                             <RechartsPieChart>
                                                 <Pie dataKey="value" nameKey="name" data={chart.data} cx="50%" cy="50%" outerRadius={80} fill="hsl(var(--primary))" labelLine={false}>
-                                                    {chart.data.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                    {chart.useMultiColor && chart.data.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                     ))}
                                                 </Pie>
                                                 <Tooltip cursor={{fill: 'hsla(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))'}}/>
