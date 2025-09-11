@@ -1,4 +1,4 @@
-# Chartastic
+# SmartCharts
 
 This is a NextJS app to visualize data using charts.
 
