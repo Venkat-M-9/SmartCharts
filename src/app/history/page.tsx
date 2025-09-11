@@ -1,9 +1,10 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { BarChart2, LineChart, PieChart as PieChartIcon, Trash2 } from "lucide-react";
+import { toPng } from "html-to-image";
+import { BarChart2, LineChart, PieChart as PieChartIcon, Trash2, Download, Copy } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart as RechartsPieChart, Pie, LineChart as RechartsLineChart, Line, CartesianGrid } from "recharts";
@@ -37,6 +38,7 @@ export default function HistoryPage() {
   const [savedCharts, setSavedCharts] = useState<SavedChart[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
+  const chartRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   useEffect(() => {
     setIsMounted(true);
@@ -72,6 +74,62 @@ export default function HistoryPage() {
     }
   };
 
+  const handleDownload = useCallback((chartId: number, chartType: string) => {
+    const chartRef = chartRefs.current[chartId];
+    if (chartRef === null || !chartRef) return;
+    
+    const isDark = document.documentElement.classList.contains('dark');
+    toPng(chartRef, { cacheBust: true, backgroundColor: isDark ? 'hsl(224 71% 4%)' : 'hsl(0 0% 100%)' })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = `${chartType}-chart.png`;
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.error(err);
+        toast({
+          title: "Error",
+          description: "Could not download chart.",
+          variant: "destructive",
+        });
+      });
+  }, [toast]);
+
+  const handleCopy = useCallback((chartId: number) => {
+    const chartRef = chartRefs.current[chartId];
+    if (chartRef === null || !chartRef) return;
+
+    const isDark = document.documentElement.classList.contains('dark');
+    toPng(chartRef, { cacheBust: true, backgroundColor: isDark ? 'hsl(224 71% 4%)' : 'hsl(0 0% 100%)' })
+      .then(async (dataUrl) => {
+        try {
+          const blob = await (await fetch(dataUrl)).blob();
+          await navigator.clipboard.write([
+            new ClipboardItem({ [blob.type]: blob }),
+          ]);
+          toast({
+            title: "Success",
+            description: "Chart copied to clipboard.",
+          });
+        } catch (err) {
+            console.error(err)
+            toast({
+                title: "Error",
+                description: "Could not copy chart to clipboard.",
+                variant: "destructive",
+            });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        toast({
+          title: "Error",
+          description: "Could not copy chart.",
+          variant: "destructive",
+        });
+      });
+  }, [toast]);
 
   if (!isMounted) {
     return null; // Avoid hydration mismatch
@@ -118,7 +176,7 @@ export default function HistoryPage() {
                                 </div>
                             </CardHeader>
                             <CardContent className="flex-1 -mt-4">
-                               <div style={{ "--primary": chart.primaryColor } as React.CSSProperties}>
+                               <div style={{ "--primary": chart.primaryColor } as React.CSSProperties} ref={(el) => (chartRefs.current[chart.id] = el)}>
                                  <ResponsiveContainer width="100%" height={200}>
                                         {chart.chartType === 'pie' ? (
                                             <RechartsPieChart>
@@ -153,6 +211,16 @@ export default function HistoryPage() {
                                     </ResponsiveContainer>
                                </div>
                             </CardContent>
+                             <CardFooter className="justify-end gap-2">
+                                <Button variant="outline" size="sm" onClick={() => handleDownload(chart.id, chart.chartType)}>
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Download
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={() => handleCopy(chart.id)}>
+                                    <Copy className="mr-2 h-4 w-4" />
+                                    Copy
+                                </Button>
+                            </CardFooter>
                         </Card>
                     )
                 })}
@@ -164,5 +232,3 @@ export default function HistoryPage() {
     </>
   );
 }
-
-    
