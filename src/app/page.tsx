@@ -125,7 +125,7 @@ export default function Home() {
       return;
     }
     const isDark = document.documentElement.classList.contains('dark');
-    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? '#0c102a' : '#ffffff' })
+    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? '#000000' : '#ffffff' })
       .then((dataUrl) => {
         const link = document.createElement("a");
         link.download = `${chartType}-chart.png`;
@@ -147,7 +147,7 @@ export default function Home() {
       return;
     }
     const isDark = document.documentElement.classList.contains('dark');
-    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? '#0c102a' : '#ffffff' })
+    toPng(chartRef.current, { cacheBust: true, backgroundColor: isDark ? '#000000' : '#ffffff' })
       .then(async (dataUrl) => {
         try {
           const blob = await (await fetch(dataUrl)).blob();
@@ -239,7 +239,7 @@ export default function Home() {
                                 <Legend />
                             </PieChart>
                         ) : chartType === 'bar' ? (
-                            <BarChart data={parsedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                            <BarChart data={parsedData} margin={{ top: 20, right: 30, left: 20, bottom: 50 }}>
                                 <defs>
                                     <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
@@ -247,8 +247,8 @@ export default function Home() {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0}>
-                                    <RechartsLabel value="Products" position="insideBottom" offset={-15} />
+                                <XAxis dataKey="name" tick={{ fontSize: 12 }} interval={0} angle={-30} textAnchor="end">
+                                    <RechartsLabel value="Products" position="insideBottom" offset={-35} />
                                 </XAxis>
                                 <YAxis>
                                     <RechartsLabel value="Units Sold" angle={-90} position="insideLeft" style={{ textAnchor: 'middle' }} />
