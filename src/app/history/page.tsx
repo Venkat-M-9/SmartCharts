@@ -6,7 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import { BarChart2, LineChart, PieChart as PieChartIcon, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart as RechartsPieChart, Pie, LineChart as RechartsLineChart, Line } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart as RechartsPieChart, Pie, LineChart as RechartsLineChart, Line, CartesianGrid } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
