@@ -16,6 +16,12 @@ import {
   Line,
   ResponsiveContainer,
 } from "recharts";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +34,15 @@ interface DataItem {
 }
 
 const COLORS = ["#3498db", "#2ecc71", "#e74c3c", "#9b59b6", "#f39c12"];
+
+const sampleData = [
+  { name: "Jan", value: 4000 },
+  { name: "Feb", value: 3000 },
+  { name: "Mar", value: 2000 },
+  { name: "Apr", value: 2780 },
+  { name: "May", value: 1890 },
+  { name: "Jun", value: 2390 },
+];
 
 export default function Home() {
   const [fileData, setFileData] = useState<string>("");
@@ -46,12 +61,16 @@ export default function Home() {
   };
 
   const parseData = () => {
+    if (!fileData) {
+      alert("Please upload a file or load sample data first.");
+      return;
+    }
     try {
       const data = JSON.parse(fileData) as DataItem[];
       setParsedData(data);
     } catch (error) {
       try {
-        const lines = fileData.split("\n");
+        const lines = fileData.split("\n").filter(line => line.trim() !== "");
         const data = lines.map((line) => {
           const [name, value] = line.split(",");
           return { name, value: parseFloat(value) };
@@ -61,6 +80,11 @@ export default function Home() {
         alert("Error parsing data. Please ensure it is valid JSON or CSV format (name,value).");
       }
     }
+  };
+
+  const loadSampleData = () => {
+    setFileData(JSON.stringify(sampleData, null, 2));
+    setParsedData(sampleData);
   };
 
   const renderChart = () => {
@@ -91,7 +115,7 @@ export default function Home() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="value" fill="#3498db" />
+              <Bar dataKey="value" fill="hsl(var(--primary))" />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -104,7 +128,7 @@ export default function Home() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="value" stroke="#2ecc71" />
+              <Line type="monotone" dataKey="value" stroke="hsl(var(--accent))" />
             </LineChart>
           </ResponsiveContainer>
         );
@@ -121,11 +145,32 @@ export default function Home() {
           <CardDescription>Visualize your data with ease.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="file">Upload Data (JSON or CSV):</Label>
-            <Input id="file" type="file" accept=".json, .csv" onChange={handleFileChange} />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="file">Upload Data (JSON or CSV):</Label>
+              <Input id="file" type="file" accept=".json, .csv" onChange={handleFileChange} />
+            </div>
+            <div className="grid gap-2">
+              <Label>Or use sample data:</Label>
+              <Button onClick={loadSampleData} variant="secondary">Load Sample Data</Button>
+            </div>
           </div>
-          <Button onClick={parseData}>Parse Data</Button>
+
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>View Sample Data Structure</AccordionTrigger>
+              <AccordionContent>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Your data should be an array of objects with "name" and "value" keys (JSON) or a CSV with name,value columns.
+                </p>
+                <pre className="bg-muted p-2 rounded-md text-sm overflow-x-auto">
+                  <code>{JSON.stringify(sampleData, null, 2)}</code>
+                </pre>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Button onClick={parseData}>Parse and Visualize Data</Button>
 
           <div className="grid gap-2">
             <Label>Select Chart Type:</Label>
@@ -141,7 +186,8 @@ export default function Home() {
             </Select>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-4 border-t pt-4">
+            <h3 className="text-lg font-semibold mb-2">Chart Preview</h3>
             {renderChart()}
           </div>
         </CardContent>
