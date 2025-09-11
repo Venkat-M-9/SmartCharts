@@ -21,13 +21,13 @@ export default function ContactPage() {
                 venkatmukala9@gmail.com
               </Button>
             </a>
-            <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://www.linkedin.com/public-profile/settings?trk=d_flagship3_profile_self_view_public_profile" target="_blank" rel="noopener noreferrer">
                <Button variant="outline" className="w-full justify-start">
                 <Linkedin className="mr-4" />
                 LinkedIn
               </Button>
             </a>
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/Venkat-M-9" target="_blank" rel="noopener noreferrer">
               <Button variant="outline" className="w-full justify-start">
                 <Github className="mr-4" />
                 GitHub
