@@ -351,113 +351,111 @@ export default function Home() {
                 <p className="mt-4 text-lg md:text-xl text-muted-foreground">Upload Data → Generate Charts Instantly</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-              <div className="lg:col-span-1 grid gap-8">
-                  <Card>
-                      <CardHeader>
-                          <CardTitle>Load Your Data</CardTitle>
-                          <CardDescription>Upload a CSV/JSON file or use sample data.</CardDescription>
-                      </CardHeader>
-                      <CardContent className="grid gap-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="file-upload" className="sr-only">Upload Data</Label>
-                            <Input id="file-upload" type="file" accept=".json, .csv" onChange={handleFileChange} className="hidden" ref={fileInputRef}/>
-                            <Button onClick={() => fileInputRef.current?.click()}>
-                              <FileUp className="mr-2 h-4 w-4" />
-                              Upload File
-                            </Button>
-                          </div>
-                          <div className="relative">
-                              <Separator className="my-2" />
-                              <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-card px-2 text-sm text-muted-foreground">OR</span>
-                          </div>
-                          <Button onClick={loadSampleData} variant="secondary">
-                              <TestTube2 className="mr-2 h-4 w-4"/>
-                              Try Sample Data
-                          </Button>
-                      </CardContent>
-                  </Card>
-                  <Card>
-                      <CardHeader>
-                          <CardTitle>Customize Your Chart</CardTitle>
-                          <CardDescription>Select chart type and theme.</CardDescription>
-                      </CardHeader>
-                      <CardContent className="grid sm:grid-cols-2 gap-6">
-                          <div className="grid gap-2">
-                              <Label>Chart Type</Label>
-                              <Select value={chartType} onValueChange={(value) => setChartType(value as "pie" | "bar" | "line")}>
-                              <SelectTrigger>
-                                  <SelectValue placeholder="Select a chart type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                  <SelectItem value="bar">Bar Chart</SelectItem>
-                                  <SelectItem value="line">Line Chart</SelectItem>
-                                  <SelectItem value="pie">Pie Chart</SelectItem>
-                              </SelectContent>
-                              </Select>
-                          </div>
-                           <div className="grid gap-2">
-                              <Label>Color Theme</Label>
-                               <div className="flex gap-2">
-                                  {Object.keys(COLOR_THEMES).map((color) => (
-                                      <Button
-                                          key={color}
-                                          variant="outline"
-                                          size="icon"
-                                          className="h-8 w-8 rounded-full"
-                                          style={{ backgroundColor: color }}
-                                          onClick={() => applyColorTheme(color as keyof typeof COLOR_THEMES)}
-                                      />
-                                  ))}
-                              </div>
-                          </div>
-                          {(chartType === 'bar' || chartType === 'pie') && (
-                              <div className="grid gap-2">
-                                  <Label>Chart Colors</Label>
-                                  <div className="flex items-center space-x-2">
-                                      <Switch id="multicolor-switch" checked={useMultiColor} onCheckedChange={setUseMultiColor} />
-                                      <Label htmlFor="multicolor-switch">Use a different color for each {chartType === 'bar' ? 'bar' : 'slice'}</Label>
-                                  </div>
-                              </div>
-                          )}
-                      </CardContent>
-                  </Card>
-              </div>
-
-              <div className="lg:col-span-2 grid gap-8">
-                {parsedData.length > 0 ? (
-                  <>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <Card className="lg:col-span-1">
+                    <CardHeader>
+                        <CardTitle>Load Your Data</CardTitle>
+                        <CardDescription>Upload a CSV/JSON file or use sample data.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid gap-4">
+                        <div className="grid gap-2">
+                        <Label htmlFor="file-upload" className="sr-only">Upload Data</Label>
+                        <Input id="file-upload" type="file" accept=".json, .csv" onChange={handleFileChange} className="hidden" ref={fileInputRef}/>
+                        <Button onClick={() => fileInputRef.current?.click()}>
+                            <FileUp className="mr-2 h-4 w-4" />
+                            Upload File
+                        </Button>
+                        </div>
+                        <div className="relative">
+                            <Separator className="my-2" />
+                            <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-card px-2 text-sm text-muted-foreground">OR</span>
+                        </div>
+                        <Button onClick={loadSampleData} variant="secondary">
+                            <TestTube2 className="mr-2 h-4 w-4"/>
+                            Try Sample Data
+                        </Button>
+                    </CardContent>
+                </Card>
+                
+                <div className="lg:col-span-2 lg:row-span-2 grid gap-8">
                     {renderChart()}
-                    <Card>
-                      <CardHeader>
-                          <CardTitle>Data Preview</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                          <div className="max-h-60 overflow-y-auto border rounded-lg">
-                              <table className="w-full text-sm text-left">
-                                  <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
-                                      <tr>
-                                          <th scope="col" className="px-6 py-3">Product</th>
-                                          <th scope="col" className="px-6 py-3">Units Sold</th>
-                                      </tr>
-                                  </thead>
-                                  <tbody>
-                                      {parsedData.map((item, index) => (
-                                          <tr key={index} className="border-b">
-                                              <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap">{item.name}</th>
-                                              <td className="px-6 py-4">{item.value}</td>
-                                          </tr>
-                                      ))}
-                                  </tbody>
-                              </table>
-                          </div>
-                      </CardContent>
-                    </Card>
-                  </>
-                ) : (
-                  renderChart()
+                </div>
+
+                <Card className="lg:col-span-1">
+                    <CardHeader>
+                        <CardTitle>Customize Your Chart</CardTitle>
+                        <CardDescription>Select chart type and theme.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid sm:grid-cols-2 gap-6">
+                        <div className="grid gap-2">
+                            <Label>Chart Type</Label>
+                            <Select value={chartType} onValueChange={(value) => setChartType(value as "pie" | "bar" | "line")}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a chart type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="bar">Bar Chart</SelectItem>
+                                <SelectItem value="line">Line Chart</SelectItem>
+                                <SelectItem value="pie">Pie Chart</SelectItem>
+                            </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label>Color Theme</Label>
+                            <div className="flex gap-2">
+                                {Object.keys(COLOR_THEMES).map((color) => (
+                                    <Button
+                                        key={color}
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-8 w-8 rounded-full"
+                                        style={{ backgroundColor: color }}
+                                        onClick={() => applyColorTheme(color as keyof typeof COLOR_THEMES)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        {(chartType === 'bar' || chartType === 'pie') && (
+                            <div className="grid gap-2">
+                                <Label>Chart Colors</Label>
+                                <div className="flex items-center space-x-2">
+                                    <Switch id="multicolor-switch" checked={useMultiColor} onCheckedChange={setUseMultiColor} />
+                                    <Label htmlFor="multicolor-switch">Use a different color for each {chartType === 'bar' ? 'bar' : 'slice'}</Label>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {parsedData.length > 0 && (
+                    <div className="lg:col-span-3">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Data Preview</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="max-h-60 overflow-y-auto border rounded-lg">
+                                    <table className="w-full text-sm text-left">
+                                        <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
+                                            <tr>
+                                                <th scope="col" className="px-6 py-3">Product</th>
+                                                <th scope="col" className="px-6 py-3">Units Sold</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {parsedData.map((item, index) => (
+                                                <tr key={index} className="border-b">
+                                                    <th scope="row" className="px-6 py-4 font-medium whitespace-nowrap">{item.name}</th>
+                                                    <td className="px-6 py-4">{item.value}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 )}
-              </div>
             </div>
         </div>
       </main>
