@@ -2,22 +2,10 @@ import type {Metadata} from 'next';
 import { Inter } from "next/font/google";
 import './globals.css';
 import { ThemeProvider } from "@/components/theme-provider";
-import {
-  Sidebar,
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-} from "@/components/ui/sidebar";
-import { Home, BarChart2, History, Info, Mail, Sun, Moon } from "lucide-react";
-import { Button } from '@/components/ui/button';
-import { useTheme } from 'next-themes';
+import { Home, BarChart2, History, Info, Mail } from "lucide-react";
 import Link from 'next/link';
 import { ModeToggle } from '@/components/mode-toggle';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const inter = Inter({ subsets: ["latin"] });
 
