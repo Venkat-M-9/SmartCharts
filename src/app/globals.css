@@ -24,6 +24,9 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    --animation-blob-1: 217.2 91.2% 59.8%;
+    --animation-blob-2: 166 71% 36%;
+    --animation-blob-3: 36 91% 51%;
   }
 
   .dark {
@@ -46,6 +49,9 @@
     --border: 217.2 32.6% 23.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 217.2 91.2% 59.8%;
+    --animation-blob-1: 217.2 91.2% 59.8%;
+    --animation-blob-2: 271 47% 41%;
+    --animation-blob-3: 5 61% 48%;
   }
 }
 
@@ -55,5 +61,21 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .animation-blob {
+    @apply absolute rounded-full opacity-30 mix-blend-multiply blur-2xl filter dark:mix-blend-lighten dark:opacity-20;
+    animation: move 20s infinite alternate;
+  }
+}
+
+@keyframes move {
+  from {
+    transform: translate(-100px, -50px) rotate(-90deg);
+  }
+  to {
+    transform: translate(100px, 100px) rotate(90deg);
   }
 }
