@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export default function ContactPage() {
   const [firstName, setFirstName] = useState('');
@@ -13,12 +14,10 @@ export default function ContactPage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const generateMailtoLink = () => {
     const subject = `Message from ${firstName} ${lastName}`;
     const body = `From: ${email}\n\n${message}`;
-    const mailtoLink = `mailto:venkatmukala9@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoLink;
+    return `mailto:venkatmukala9@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
   return (
@@ -30,7 +29,7 @@ export default function ContactPage() {
                 <CardDescription>Have questions or feedback? We'd love to hear from you.</CardDescription>
             </CardHeader>
             <CardContent>
-                <form className="grid gap-6" onSubmit={handleSubmit}>
+                <form className="grid gap-6">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="first-name">First name</Label>
@@ -49,7 +48,12 @@ export default function ContactPage() {
                         <Label htmlFor="message">Message</Label>
                         <Textarea id="message" placeholder="Your message here..." value={message} onChange={(e) => setMessage(e.target.value)} required />
                     </div>
-                    <Button type="submit">Send Message</Button>
+                    <a
+                      href={generateMailtoLink()}
+                      className={cn(buttonVariants({ variant: "default" }), "w-full")}
+                    >
+                      Send Message
+                    </a>
                 </form>
             </CardContent>
         </Card>
