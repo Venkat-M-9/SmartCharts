@@ -95,7 +95,7 @@ export default function Home() {
       } catch (csvError) {
         toast({
           title: "Parsing Error",
-          description: "Please ensure data is valid JSON or CSV (name,value).",
+          description: "Could not parse the file. Please ensure it is valid JSON or CSV (name,value).",
           variant: "destructive",
         });
         return;
@@ -103,6 +103,17 @@ export default function Home() {
     }
 
     const validData = data.filter(item => typeof item.name === 'string' && item.name.trim() !== '' && typeof item.value === 'number' && !isNaN(item.value) && item.value !== null);
+    
+    if (validData.length === 0) {
+        toast({
+            title: "Parsing Error",
+            description: "No valid data found in the file. Please check the format.",
+            variant: "destructive",
+        });
+        setParsedData([]);
+        return;
+    }
+    
     const sortedData = validData.sort((a, b) => b.value - a.value);
     setParsedData(sortedData);
     toast({
@@ -343,7 +354,7 @@ export default function Home() {
             <div className="grid md:grid-cols-3 gap-8">
                 <Card className="md:col-span-1 shadow-none border-0 bg-card">
                     <CardHeader>
-                        <CardTitle>1. Load Your Data</CardTitle>
+                        <CardTitle>Load Your Data</CardTitle>
                         <CardDescription>Upload a CSV/JSON file or use sample data.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
@@ -367,7 +378,7 @@ export default function Home() {
                 </Card>
                 <Card className="md:col-span-2 shadow-none border-0 bg-card">
                     <CardHeader>
-                        <CardTitle>2. Customize Your Chart</CardTitle>
+                        <CardTitle>Customize Your Chart</CardTitle>
                         <CardDescription>Select chart type and theme.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid sm:grid-cols-2 gap-6">
@@ -413,7 +424,7 @@ export default function Home() {
             </div>
           
           <div>
-            <h3 className="text-2xl font-semibold mb-4">3. Your Chart</h3>
+            <h3 className="text-2xl font-semibold mb-4">Your Chart</h3>
             {renderChart()}
           </div>
           
@@ -451,5 +462,3 @@ export default function Home() {
     </>
   );
 }
-
-    
