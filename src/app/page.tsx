@@ -206,7 +206,7 @@ export default function Home() {
       
       const newChart = {
         id: Date.now(),
-        title: "Mobile Sales Data",
+        title: "MyChart",
         data: parsedData,
         chartType,
         useMultiColor: chartType === 'pie' ? true : useMultiColor,
@@ -265,7 +265,7 @@ export default function Home() {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div className="flex items-center gap-2">
                     <ChartIcon className="h-6 w-6" />
-                    <CardTitle>Mobile Sales Data</CardTitle>
+                    <CardTitle>MyChart</CardTitle>
                 </div>
                 <div className="flex gap-2">
                      <Button variant="outline" size="sm" onClick={handleSave} disabled={!parsedData.length}>
